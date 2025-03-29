@@ -1,7 +1,0 @@
-{
-    "suggest.noselect" : true,
-    "diagnostic.enableSign": false,
-    "diagnostic.enableMessage": false,
-    "clangd.disableDiagnostics": true,
-    "clangd.path": ""
-}

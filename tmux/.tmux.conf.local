@@ -375,6 +375,8 @@ set -g message-style 'fg=colour232 bg=colour16 bold'
 
 set -g default-terminal "screen-256color"
 
+set -s set-clipboard on
+
 #set -g mode-mouse on
 
 set-window-option -g mode-keys vi
