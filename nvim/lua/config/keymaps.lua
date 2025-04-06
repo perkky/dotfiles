@@ -32,8 +32,11 @@ vim.api.nvim_set_keymap("", "k", 'v:count || mode(1)[0:1] == "no" ? "k" : "gk"',
 
 vim.api.nvim_set_keymap("n", "*", ":keepjumps normal! mi*`i<CR>", { noremap = true })
 vim.api.nvim_set_keymap("n", "<leader>l", "<cmd>Lazy<cr>", { desc = "Lazy" })
+vim.api.nvim_set_keymap("n", "<leader>h", "<cmd>lua vim.diagnostic.open_float()<cr>", { desc = "Open lsp diagnostic" })
 vim.api.nvim_set_keymap("n", "<C-c>", "gcc", { desc = "comment" })
 vim.api.nvim_set_keymap("v", "<C-c>", "gc", { desc = "comment" })
+
+vim.diagnostic.config({ virtual_text = true });
 
 vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 	callback = function()

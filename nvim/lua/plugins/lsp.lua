@@ -152,7 +152,7 @@ return {
             --  -- do stuff here....
             -- end
             cmd = {
-                    "/home/git/clangd_19.1.2/bin/clangd",
+                    "/home/ryan/clangd_19.1.2/bin/clangd",
                     -- "--all-scopes-completion",
                     "--background-index",
                     "--clang-tidy",
