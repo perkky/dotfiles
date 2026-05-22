@@ -17,9 +17,7 @@ vim.o.backup = false
 vim.o.writebackup = false
 vim.o.updatetime = 200
 vim.o.tagcase = "match"
-vim.o.termguicolors = true
-vim.o.undodir = "~/.config/nvim/undodir"
-vim.o.undofile = true
+vim.o.termguicolors = true vim.o.undofile = true
 vim.o.grepprg = "rg --vimgrep"
 vim.o.list = true
 vim.o.virtualedit = "block"
@@ -46,3 +44,31 @@ vim.api.nvim_create_autocmd({ "BufWritePre" }, {
 		vim.fn.winrestview(view) -- restore cached window view
 	end,
 })
+
+local function createCompiledWindow(fileName, compilerBufferName)
+    local compiler_buffer_id = vim.fn.bufnr(compilerBufferName);
+    if not vim.api.nvim_buf_is_valid(compiler_buffer_id) then
+        vim.api.nvim_command("rightbelow vsplit " .. compilerBufferName);
+        compiler_buffer_id = vim.fn.bufnr(compilerBufferName);
+    end
+
+    -- local file_buffer_id = vim.fn.bufnr(fileName);
+    -- local compiler = string.sub(vim.api.nvim_buf_get_lines(file_buffer_id, 0, 1, false)[0], 2);
+
+    vim.api.nvim_buf_call(compiler_buffer_id, function()
+        vim.api.nvim_command("let current_buffer_name = bufname('%') | execute 'enew' | execute 'bwipeout! ' . current_buffer_name | execute 'file ' . current_buffer_name | call jobstart('cat " .. fileName .. " | g++ -x c++ --std=c++20 -O3 -Wall -Werror -Wno-unused-variable -o test - && ./test', {'term':v:true}) | execute 'file ' current_buffer_name | execute 'setlocal norelativenumber' | execute 'setlocal nonumber'")
+    end)
+end
+
+vim.api.nvim_create_user_command("AttachCompiler", function()
+    local filename = vim.fn.expand("%")
+    local compilerFilename = filename .. '_compiler'
+    createCompiledWindow(filename, compilerFilename)
+    vim.api.nvim_create_autocmd({"BufWritePost"}, {
+        pattern = {filename},
+        -- command = vim.api.nvim_call_function("createCompiledWindow(".. filename ", 'compiler')")
+        callback = function()
+            createCompiledWindow(filename, compilerFilename)
+        end
+    })
+end, {})

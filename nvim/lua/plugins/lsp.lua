@@ -145,7 +145,7 @@ return {
   },
 
   {
-    'nvim-lspconfig',
+    'neovim/nvim-lspconfig',
     config = function(opts)
         require('lspconfig').clangd.setup{
             -- on_attach = function()
@@ -188,6 +188,7 @@ return {
                 }
             }
         }
+        require('lspconfig').rust_analyzer.setup { }
     end,
   }
 }
