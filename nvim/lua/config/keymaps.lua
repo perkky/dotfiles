@@ -1,74 +1,46 @@
-vim.g.mapleader = " "
-vim.o.number = true
+vim.keymap.set("i", "jk", "<Esc>", { noremap = true })
+vim.keymap.set("n", "vs", ":vs<CR>", { noremap = true })
 
-vim.o.relativenumber = true
-vim.o.wrap = true
-vim.o.expandtab = true
-vim.o.incsearch = true
-vim.o.tabstop = 4
-vim.o.cursorline = true
-vim.o.colorcolumn = "200"
-vim.o.shiftwidth = 4
-vim.o.numberwidth = 4
-vim.o.termguicolors = true
-vim.o.mouse = "a"
-vim.o.hidden = true
-vim.o.backup = false
-vim.o.writebackup = false
-vim.o.updatetime = 200
-vim.o.tagcase = "match"
-vim.o.termguicolors = true vim.o.undofile = true
-vim.o.grepprg = "rg --vimgrep"
-vim.o.list = true
-vim.o.virtualedit = "block"
+vim.keymap.set("", "j", 'v:count || mode(1)[0:1] == "no" ? "j" : "gj"', { expr = true, desc = "which_key_ignore"})
+vim.keymap.set("", "k", 'v:count || mode(1)[0:1] == "no" ? "k" : "gk"', { expr = true, desc = "which_key_ignore"})
 
-vim.api.nvim_set_keymap("i", "jk", "<Esc>", { noremap = true })
-vim.api.nvim_set_keymap("n", "vs", ":vs<CR>", { noremap = true })
+vim.keymap.set("n", "*", ":keepjumps normal! mi*`i<CR>", { noremap = true })
+vim.api.nvim_set_keymap("n", "<C-c>", "gcc", { desc = "Comment Out Line" })
+vim.api.nvim_set_keymap("v", "<C-c>", "gc", { desc = "Comment Out Line" })
+vim.keymap.set("n", "gl", "$", { desc = "Go to end of line" })
+vim.keymap.set("n", "gh", "^", { desc = "Go to start of line" })
+vim.keymap.set({ "i", "n" }, "<esc>", "<cmd>noh<cr><esc>", { desc = "Escape and Clear hlsearch" })
 
-vim.api.nvim_set_keymap("", "j", 'v:count || mode(1)[0:1] == "no" ? "j" : "gj"', { expr = true, desc = "which_key_ignore"})
-vim.api.nvim_set_keymap("", "k", 'v:count || mode(1)[0:1] == "no" ? "k" : "gk"', { expr = true, desc = "which_key_ignore"})
+-- LSP
+vim.keymap.set('n', '<leader>D', vim.lsp.buf.declaration, { noremap=true, silent=true, desc = "LSP Declaration"})
+vim.keymap.set('n', '<leader>d', vim.lsp.buf.definition, { noremap=true, silent=true, desc = "LSP Definition"})
+vim.keymap.set('n', '<leader>i', vim.lsp.buf.implementation, { noremap=true, silent=true, desc = "LSP Implementation"})
+vim.keymap.set('n', '<leader>r', vim.lsp.buf.references, { noremap=true, silent=true, desc = "LSP References"})
+vim.keymap.set('n', '<leader>h', vim.lsp.buf.hover, { desc = "LSP Hover" })
+vim.keymap.set('n', '<leader>a', vim.lsp.buf.code_action, { desc = "LSP Code Action" })
+vim.keymap.set('v', '<leader>a', vim.lsp.buf.code_action, { desc = "LSP Code Action" })
 
-vim.api.nvim_set_keymap("n", "*", ":keepjumps normal! mi*`i<CR>", { noremap = true })
-vim.api.nvim_set_keymap("n", "<leader>l", "<cmd>Lazy<cr>", { desc = "Lazy" })
-vim.api.nvim_set_keymap("n", "<leader>h", "<cmd>lua vim.diagnostic.open_float()<cr>", { desc = "Open lsp diagnostic" })
-vim.api.nvim_set_keymap("n", "<C-c>", "gcc", { desc = "comment" })
-vim.api.nvim_set_keymap("v", "<C-c>", "gc", { desc = "comment" })
+-- Smart search navigation (n always goes forward, N always backward)
+vim.keymap.set("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
+vim.keymap.set("x", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
+vim.keymap.set("o", "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
+vim.keymap.set("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search Result" })
+vim.keymap.set("x", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
+vim.keymap.set("o", "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 
-vim.diagnostic.config({ virtual_text = true });
+-- Better indenting (stay in visual mode) (removed as . is good enough)
+--vim.keymap.set("v", "<", "<gv")
+--vim.keymap.set("v", ">", ">gv")
 
-vim.api.nvim_create_autocmd({ "BufWritePre" }, {
-	callback = function()
-		-- cache current window view, since :s command moves the cursor to last substitution
-		local view = vim.fn.winsaveview()
-		vim.cmd([[%s:\s\+$::e]])
-		vim.fn.winrestview(view) -- restore cached window view
-	end,
-})
+-- Dont replace clipboard with deleted text when pasting
+vim.keymap.set("v", "p", '"_dP', opts)
 
-local function createCompiledWindow(fileName, compilerBufferName)
-    local compiler_buffer_id = vim.fn.bufnr(compilerBufferName);
-    if not vim.api.nvim_buf_is_valid(compiler_buffer_id) then
-        vim.api.nvim_command("rightbelow vsplit " .. compilerBufferName);
-        compiler_buffer_id = vim.fn.bufnr(compilerBufferName);
-    end
-
-    -- local file_buffer_id = vim.fn.bufnr(fileName);
-    -- local compiler = string.sub(vim.api.nvim_buf_get_lines(file_buffer_id, 0, 1, false)[0], 2);
-
-    vim.api.nvim_buf_call(compiler_buffer_id, function()
-        vim.api.nvim_command("let current_buffer_name = bufname('%') | execute 'enew' | execute 'bwipeout! ' . current_buffer_name | execute 'file ' . current_buffer_name | call jobstart('cat " .. fileName .. " | g++ -x c++ --std=c++20 -O3 -Wall -Werror -Wno-unused-variable -o test - && ./test', {'term':v:true}) | execute 'file ' current_buffer_name | execute 'setlocal norelativenumber' | execute 'setlocal nonumber'")
-    end)
-end
-
-vim.api.nvim_create_user_command("AttachCompiler", function()
-    local filename = vim.fn.expand("%")
-    local compilerFilename = filename .. '_compiler'
-    createCompiledWindow(filename, compilerFilename)
-    vim.api.nvim_create_autocmd({"BufWritePost"}, {
-        pattern = {filename},
-        -- command = vim.api.nvim_call_function("createCompiledWindow(".. filename ", 'compiler')")
-        callback = function()
-            createCompiledWindow(filename, compilerFilename)
-        end
-    })
-end, {})
+-- Quickfix list
+-- vim.keymap.set("n", "<leader>l", function()
+--   local success, err = pcall(vim.fn.getqflist({ winid = 0 }).winid ~= 0 and vim.cmd.cclose or vim.cmd.copen)
+--   if not success and err then
+--     vim.notify(err, vim.log.levels.ERROR)
+--   end
+-- end, { desc = "Quickfix List" })
+vim.keymap.set("n", "[q", vim.cmd.cprev, { desc = "Previous Quickfix" })
+vim.keymap.set("n", "]q", vim.cmd.cnext, { desc = "Next Quickfix" })
